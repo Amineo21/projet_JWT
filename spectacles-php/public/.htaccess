@@ -1,0 +1,11 @@
+# Redirige toutes les requêtes vers index.php
+# Permet d'avoir des URLs propres sans .php
+
+RewriteEngine On
+
+# Si le fichier ou dossier existe, ne pas rediriger
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Redirige tout vers index.php
+RewriteRule ^(.*)$ index.php [QSA,L]
