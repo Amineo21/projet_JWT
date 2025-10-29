@@ -56,7 +56,7 @@ class AdminController {
         $spectacleService = new SpectacleService();
         $spectacle = $spectacleService->create($data);
         
-        header('/spectacles?message=Spectacle créé avec succès&type=success');
+        header('Location: /spectacles?message=Spectacle créé avec succès&type=success');
         exit;
     }
 }

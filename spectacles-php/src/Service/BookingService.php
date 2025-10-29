@@ -3,28 +3,34 @@
  * SERVICE RÉSERVATIONS
  * 
  * Gère les réservations de billets
- * Simule une base de données avec un tableau PHP
+ * Utilise les sessions PHP pour persister les données entre les requêtes
  */
 
 namespace App\Service;
 
 class BookingService {
-    // Simule une base de données de réservations
-    private static array $bookings = [];
+    /**
+     * Constructeur - Initialise les réservations en session si nécessaire
+     */
+    public function __construct() {
+        if (!isset($_SESSION['bookings'])) {
+            $_SESSION['bookings'] = [];
+        }
+    }
     
     /**
      * Crée une réservation
      */
     public function create(string $userId, string $spectacleId, int $quantity = 1): array {
         $booking = [
-            'id' => (string)(count(self::$bookings) + 1),
+            'id' => (string)(count($_SESSION['bookings']) + 1),
             'user_id' => $userId,
             'spectacle_id' => $spectacleId,
             'quantity' => $quantity,
             'booked_at' => date('Y-m-d H:i:s')
         ];
         
-        self::$bookings[] = $booking;
+        $_SESSION['bookings'][] = $booking;
         
         return $booking;
     }
@@ -35,7 +41,7 @@ class BookingService {
     public function getByUserId(string $userId): array {
         $userBookings = [];
         
-        foreach (self::$bookings as $booking) {
+        foreach ($_SESSION['bookings'] as $booking) {
             if ($booking['user_id'] === $userId) {
                 $userBookings[] = $booking;
             }

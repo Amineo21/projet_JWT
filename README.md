@@ -107,17 +107,29 @@ php -v
 # Doit afficher PHP 8.0 ou supérieur
 \`\`\`
 
-### Lancement avec le serveur PHP intégré
+### Lancement avec le serveur PHP intégré (RECOMMANDÉ)
 
-1. **Démarrez le serveur depuis le dossier public**
+**IMPORTANT : Utilisez cette commande exacte pour éviter l'erreur "Not Found"**
+
 \`\`\`bash
-cd public
-php -S localhost:8000
+# Depuis la racine du projet
+php -S localhost:8000 -t public public/router.php
 \`\`\`
 
-2. **Ouvrez votre navigateur**
+**Explication :**
+- `-S localhost:8000` : Lance le serveur sur le port 8000
+- `-t public` : Définit le dossier public comme racine web
+- `public/router.php` : Utilise le routeur personnalisé (nécessaire car le serveur PHP intégré ne lit pas .htaccess)
+
+**Ouvrez ensuite votre navigateur :**
 \`\`\`
 http://localhost:8000
+\`\`\`
+
+**Autres ports disponibles si 8000 est occupé :**
+\`\`\`bash
+php -S localhost:3000 -t public public/router.php
+php -S localhost:8080 -t public public/router.php
 \`\`\`
 
 ### Lancement avec XAMPP/WAMP/MAMP
@@ -247,7 +259,15 @@ Pour un déploiement en production, pensez à :
 
 ## Dépannage
 
-### Erreur 404 sur toutes les pages
+### Erreur "Not Found - The requested resource / was not found"
+**Cause :** Le serveur PHP intégré ne lit pas le fichier `.htaccess`
+
+**Solution :** Utilisez la commande complète avec le routeur :
+\`\`\`bash
+php -S localhost:8000 -t public public/router.php
+\`\`\`
+
+### Erreur 404 sur toutes les pages (Apache/XAMPP)
 - Vérifiez que `mod_rewrite` est activé (Apache)
 - Vérifiez que le fichier `.htaccess` est présent dans `/public`
 
@@ -270,3 +290,4 @@ Projet éducatif - Libre d'utilisation
 ## Auteur
 
 Développé comme exercice d'apprentissage PHP avec JWT et architecture MVC
+</merged_code

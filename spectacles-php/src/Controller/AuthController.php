@@ -43,9 +43,16 @@ class AuthController {
             exit;
         }
         
+        $payload = [
+            'user_id' => $user['id'],
+            'username' => $user['username'],
+            'email' => $user['email'],
+            'role' => $user['role']
+        ];
+        
         // Crée l'access token (JWT)
         $jwtService = new JWTService();
-        $accessToken = $jwtService->createAccessToken($user);
+        $accessToken = $jwtService->createAccessToken($payload);
         
         // Crée le refresh token
         $refreshToken = $jwtService->createRefreshToken($user['id']);
@@ -86,9 +93,16 @@ class AuthController {
         $authService = new AuthService();
         $user = $authService->register($username, $email, $password);
         
+        $payload = [
+            'user_id' => $user['id'],
+            'username' => $user['username'],
+            'email' => $user['email'],
+            'role' => $user['role']
+        ];
+        
         // Connecte automatiquement l'utilisateur
         $jwtService = new JWTService();
-        $accessToken = $jwtService->createAccessToken($user);
+        $accessToken = $jwtService->createAccessToken($payload);
         $refreshToken = $jwtService->createRefreshToken($user['id']);
         
         $jwtService->setAccessTokenCookie($accessToken);
@@ -145,8 +159,15 @@ class AuthController {
             exit;
         }
         
+        $userPayload = [
+            'user_id' => $user['id'],
+            'username' => $user['username'],
+            'email' => $user['email'],
+            'role' => $user['role']
+        ];
+        
         // Crée un nouvel access token
-        $newAccessToken = $jwtService->createAccessToken($user);
+        $newAccessToken = $jwtService->createAccessToken($userPayload);
         $jwtService->setAccessTokenCookie($newAccessToken);
         
         echo json_encode(['success' => true]);
