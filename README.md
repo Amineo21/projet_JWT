@@ -5,7 +5,7 @@
 **IMPORTANT : Utilisez cette commande exacte pour éviter l'erreur "Not Found"**
 
 \`\`\`bash
-# Depuis la racine du projet
+# Depuis la racine du projet dans le dossier spectacles-php
 php -S localhost:8000 -t public public/router.php
 \`\`\`
 
