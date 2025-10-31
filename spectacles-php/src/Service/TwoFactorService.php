@@ -136,8 +136,7 @@ class TwoFactorService {
         
         $otpauthUrl = "otpauth://totp/{$label}?{$params}";
         
-        // Utilise l'API Google Charts pour générer le QR code
-        return 'https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=' . urlencode($otpauthUrl);
+        return 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' . urlencode($otpauthUrl);
     }
     
     /**

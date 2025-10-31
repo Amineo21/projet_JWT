@@ -27,14 +27,33 @@
                 et scannez ce QR code :
             </p>
             
+            <!-- Ajout d'un message de chargement et gestion d'erreur pour le QR code -->
             <div class="qr-code-container">
-                <img src="<?= htmlspecialchars($qrCodeUrl) ?>" alt="QR Code TOTP">
+                <img 
+                    src="<?= htmlspecialchars($qrCodeUrl) ?>" 
+                    alt="QR Code TOTP"
+                    id="qrcode"
+                    onerror="this.style.display='none'; document.getElementById('qr-error').style.display='block';"
+                    onload="document.getElementById('qr-loading').style.display='none';"
+                >
+                <div id="qr-loading" style="text-align: center; padding: 20px;">
+                    Chargement du QR code...
+                </div>
+                <div id="qr-error" style="display: none; text-align: center; padding: 20px; background: #f8d7da; border-radius: 5px; color: #721c24;">
+                    Impossible de charger le QR code. Veuillez utiliser le code secret ci-dessous.
+                </div>
             </div>
             
             <div class="alert alert-info">
                 <strong>Impossible de scanner ?</strong><br>
                 Entrez manuellement ce code secret dans votre application :<br>
                 <code class="totp-secret"><?= htmlspecialchars($secret) ?></code>
+                <button 
+                    onclick="navigator.clipboard.writeText('<?= htmlspecialchars($secret) ?>'); this.textContent='Copié !'; setTimeout(() => this.textContent='Copier', 2000);"
+                    style="margin-left: 10px; padding: 5px 10px; cursor: pointer; background: #667eea; color: white; border: none; border-radius: 3px;"
+                >
+                    Copier
+                </button>
             </div>
         </div>
         
@@ -69,7 +88,5 @@
             <a href="/2fa/settings" class="btn btn-secondary">Annuler</a>
         </div>
     </main>
-    
-    <!-- Removed non-existent footer.php -->
 </body>
 </html>
