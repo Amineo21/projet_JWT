@@ -28,6 +28,13 @@
             </div>
         </div>
         
+        <!-- Ajout de la section sécurité avec lien vers 2FA -->
+        <div class="security-section">
+            <h2>Sécurité du compte</h2>
+            <p>Protégez votre compte avec l'authentification à deux facteurs (2FA)</p>
+            <a href="/2fa/settings" class="btn">Gérer l'authentification à deux facteurs</a>
+        </div>
+        
         <div class="tickets-list">
             <h2>Mes Réservations</h2>
             

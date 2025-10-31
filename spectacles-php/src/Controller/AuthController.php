@@ -3,7 +3,7 @@
  * CONTRÔLEUR AUTHENTIFICATION
  * 
  * Gère la connexion, l'inscription et la déconnexion
- * Gère également le refresh token
+ * Gère également le refresh token et l'authentification à deux facteurs (2FA)
  */
 
 namespace App\Controller;
@@ -11,6 +11,7 @@ namespace App\Controller;
 use App\Core\Request;
 use App\Service\AuthService;
 use App\Service\JWTService;
+use App\Service\TwoFactorService;
 
 class AuthController {
     /**
@@ -24,7 +25,8 @@ class AuthController {
     }
     
     /**
-     * Traite la connexion
+     * Traite la connexion (première étape)
+     * Modifié pour gérer le flux 2FA
      */
     public function login(Request $request, array $params): void {
         $username = $request->post('username');
@@ -43,6 +45,99 @@ class AuthController {
             exit;
         }
         
+        $twoFactorService = new TwoFactorService();
+        $twoFactorPrefs = $twoFactorService->getUserPreference($user['id']);
+        
+        if ($twoFactorPrefs && $twoFactorPrefs['enabled']) {
+            // 2FA activé : stocke l'utilisateur en session temporaire et redirige vers la vérification
+            $_SESSION['pending_2fa_user'] = $user;
+            
+            // Envoie le code selon la méthode choisie
+            if ($twoFactorPrefs['method'] === 'email') {
+                $code = $twoFactorService->generateCode();
+                $twoFactorService->sendEmailCode($user['email'], $code);
+                header('Location: /2fa/verify?method=email&message=Code envoyé par email&type=info');
+            } elseif ($twoFactorPrefs['method'] === 'sms') {
+                $code = $twoFactorService->generateCode();
+                // En production : récupérer le numéro de téléphone de l'utilisateur
+                $twoFactorService->sendSMSCode('0612345678', $code);
+                header('Location: /2fa/verify?method=sms&message=Code envoyé par SMS&type=info');
+            } elseif ($twoFactorPrefs['method'] === 'totp') {
+                header('Location: /2fa/verify?method=totp');
+            }
+            exit;
+        }
+        
+        $this->completeLogin($user);
+    }
+    
+    /**
+     * Affiche la page de vérification 2FA
+     * Nouvelle méthode pour la vérification 2FA
+     */
+    public function verify2FAForm(Request $request, array $params): void {
+        // Vérifie qu'il y a bien une authentification en attente
+        if (!isset($_SESSION['pending_2fa_user'])) {
+            header('Location: /login?message=Session expirée&type=error');
+            exit;
+        }
+        
+        $method = $request->get('method', 'email');
+        $message = $request->get('message');
+        $messageType = $request->get('type', 'info');
+        $user = $_SESSION['pending_2fa_user'];
+        
+        require __DIR__ . '/../View/2fa_verify.php';
+    }
+    
+    /**
+     * Traite la vérification du code 2FA
+     * Nouvelle méthode pour valider le code 2FA
+     */
+    public function verify2FA(Request $request, array $params): void {
+        // Vérifie qu'il y a bien une authentification en attente
+        if (!isset($_SESSION['pending_2fa_user'])) {
+            header('Location: /login?message=Session expirée&type=error');
+            exit;
+        }
+        
+        $code = $request->post('code');
+        $method = $request->post('method');
+        
+        if (empty($code)) {
+            header("Location: /2fa/verify?method={$method}&message=Code requis&type=error");
+            exit;
+        }
+        
+        $twoFactorService = new TwoFactorService();
+        $user = $_SESSION['pending_2fa_user'];
+        $isValid = false;
+        
+        // Vérifie le code selon la méthode
+        if ($method === 'email') {
+            $isValid = $twoFactorService->verifyEmailCode($code);
+        } elseif ($method === 'sms') {
+            $isValid = $twoFactorService->verifySMSCode($code);
+        } elseif ($method === 'totp') {
+            $prefs = $twoFactorService->getUserPreference($user['id']);
+            $isValid = $twoFactorService->verifyTOTPCode($prefs['totp_secret'], $code);
+        }
+        
+        if (!$isValid) {
+            header("Location: /2fa/verify?method={$method}&message=Code invalide ou expiré&type=error");
+            exit;
+        }
+        
+        // Code valide : finalise la connexion
+        unset($_SESSION['pending_2fa_user']);
+        $this->completeLogin($user);
+    }
+    
+    /**
+     * Finalise la connexion en créant les tokens JWT
+     * Nouvelle méthode pour éviter la duplication de code
+     */
+    private function completeLogin(array $user): void {
         $payload = [
             'user_id' => $user['id'],
             'username' => $user['username'],
