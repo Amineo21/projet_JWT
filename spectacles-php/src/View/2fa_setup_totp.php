@@ -7,7 +7,9 @@
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <?php require __DIR__ . '/partials/header.php'; ?>
+    <?php 
+    require __DIR__ . '/partials/navbar.php'; 
+    ?>
     
     <main class="container">
         <h1>Configuration TOTP</h1>
@@ -68,6 +70,6 @@
         </div>
     </main>
     
-    <?php require __DIR__ . '/partials/footer.php'; ?>
+    <!-- Removed non-existent footer.php -->
 </body>
 </html>

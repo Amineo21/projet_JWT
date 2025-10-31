@@ -7,7 +7,9 @@
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <?php require __DIR__ . '/partials/header.php'; ?>
+    <?php 
+    require __DIR__ . '/partials/navbar.php'; 
+    ?>
     
     <main class="container">
         <h1>Authentification à deux facteurs (2FA)</h1>
@@ -58,7 +60,6 @@
         <div class="card">
             <h2>Choisir une méthode d'authentification</h2>
             
-            <!-- Correction du nom de classe CSS -->
             <div class="twofa-methods">
                 <div class="twofa-method">
                     <h3>Email</h3>
@@ -101,6 +102,6 @@
         </div>
     </main>
     
-    <?php require __DIR__ . '/partials/footer.php'; ?>
+    <!-- Removed non-existent footer.php -->
 </body>
 </html>
